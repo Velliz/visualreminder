@@ -2,5 +2,7 @@
     <string name="app_name">Visual Reminder</string>
     <string name="app_detail">Detail Data</string>
     <string name="app_add">Tambah Data</string>
+
     <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
 </resources>

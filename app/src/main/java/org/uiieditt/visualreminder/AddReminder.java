@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+/**
+ * @deprecated consider of using full activity provided from TedPicker
+ */
 public class AddReminder extends AppCompatActivity {
 
     @Override

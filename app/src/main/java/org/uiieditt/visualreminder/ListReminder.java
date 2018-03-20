@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,11 +13,20 @@ import android.view.MenuItem;
 
 import com.gun0912.tedpicker.ImagePickerActivity;
 
+import org.uiieditt.visualreminder.utility.RunPermissions;
+
 import java.util.ArrayList;
 
+/**
+ * This class is main part of the app cycles
+ */
 public class ListReminder extends AppCompatActivity {
 
     private static final int INTENT_REQUEST_GET_IMAGES = 81;
+    private static final int INTENT_REQUEST_CAMERA = 12;
+    private static final int INTENT_REQUEST_EXTERNAL_STORAGE = 13;
+
+    private Intent addReminder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,19 +35,26 @@ public class ListReminder extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        RunPermissions permission = new RunPermissions(getBaseContext());
+
+        permission.cameraPermission(this, INTENT_REQUEST_CAMERA);
+        permission.externalStorageWritePermission(this, INTENT_REQUEST_EXTERNAL_STORAGE);
+
+        if (addReminder == null) {
+            addReminder = new Intent(this, ImagePickerActivity.class);
+        }
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                /*
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
+                */
+                startActivityForResult(addReminder, INTENT_REQUEST_GET_IMAGES);
             }
         });
-
-        Intent intent = new Intent(this, ImagePickerActivity.class);
-        startActivityForResult(intent, INTENT_REQUEST_GET_IMAGES);
     }
 
     @Override
@@ -61,6 +76,10 @@ public class ListReminder extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_about) {
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -69,10 +88,10 @@ public class ListReminder extends AppCompatActivity {
         super.onActivityResult(requestCode, resuleCode, intent);
 
         if (requestCode == INTENT_REQUEST_GET_IMAGES && resuleCode == Activity.RESULT_OK) {
-
-            ArrayList<Uri> image_uris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
+            ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
 
             //do something
+
         }
     }
 }
