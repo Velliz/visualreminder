@@ -4,8 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
@@ -13,9 +17,12 @@ import android.view.MenuItem;
 
 import com.gun0912.tedpicker.ImagePickerActivity;
 
+import org.uiieditt.visualreminder.adapter.VisualAdapter;
+import org.uiieditt.visualreminder.objects.VisualObjects;
 import org.uiieditt.visualreminder.utility.RunPermissions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is main part of the app cycles
@@ -28,12 +35,52 @@ public class ListReminder extends AppCompatActivity {
 
     private Intent addReminder;
 
+    private VisualAdapter visualData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_reminder);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (visualData == null) {
+
+            //todo: hardcoded for data sample
+            VisualObjects firstObj = new VisualObjects();
+            firstObj.setId(1);
+            firstObj.setTitle("Cuci Selimut");
+            firstObj.setItemCount(2);
+            firstObj.setDateCreated("1 Feb 2018");
+            firstObj.setStatus("SELESAI");
+
+            VisualObjects secondObj = new VisualObjects();
+            firstObj.setId(2);
+            firstObj.setTitle("Cuci Baju");
+            firstObj.setItemCount(31);
+            firstObj.setDateCreated("3 Feb 2018");
+            firstObj.setStatus("SELESAI");
+
+            VisualObjects thridObj = new VisualObjects();
+            firstObj.setId(3);
+            firstObj.setTitle("Cuci Celana");
+            firstObj.setItemCount(5);
+            firstObj.setDateCreated("6 Feb 2018");
+            firstObj.setStatus("PENDING");
+
+            List<VisualObjects> visualArray = new ArrayList<>();
+            visualArray.add(firstObj);
+            visualArray.add(secondObj);
+            visualArray.add(thridObj);
+
+            visualData = new VisualAdapter(visualArray);
+        }
+
+        RecyclerView recyclerView = findViewById(R.id.visual_list);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(visualData);
 
         RunPermissions permission = new RunPermissions(getBaseContext());
 
@@ -44,7 +91,7 @@ public class ListReminder extends AppCompatActivity {
             addReminder = new Intent(this, ImagePickerActivity.class);
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,6 +102,11 @@ public class ListReminder extends AppCompatActivity {
                 startActivityForResult(addReminder, INTENT_REQUEST_GET_IMAGES);
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override

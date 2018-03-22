@@ -9,12 +9,23 @@ public class VisualObjects implements Parcelable {
 
     private int id, itemCount;
 
+    public VisualObjects() {
+    }
+
     public VisualObjects(Parcel in) {
         title = in.readString();
         status = in.readString();
         dateCreated = in.readString();
         id = in.readInt();
         itemCount = in.readInt();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -47,14 +58,6 @@ public class VisualObjects implements Parcelable {
 
     public void setDateCreated(String dateCreated) {
         this.dateCreated = dateCreated;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     @Override
