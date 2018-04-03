@@ -55,18 +55,18 @@ public class ListReminder extends AppCompatActivity {
             firstObj.setStatus("SELESAI");
 
             VisualObjects secondObj = new VisualObjects();
-            firstObj.setId(2);
-            firstObj.setTitle("Cuci Baju");
-            firstObj.setItemCount(31);
-            firstObj.setDateCreated("3 Feb 2018");
-            firstObj.setStatus("SELESAI");
+            secondObj.setId(2);
+            secondObj.setTitle("Cuci Baju");
+            secondObj.setItemCount(31);
+            secondObj.setDateCreated("3 Feb 2018");
+            secondObj.setStatus("SELESAI");
 
             VisualObjects thridObj = new VisualObjects();
-            firstObj.setId(3);
-            firstObj.setTitle("Cuci Celana");
-            firstObj.setItemCount(5);
-            firstObj.setDateCreated("6 Feb 2018");
-            firstObj.setStatus("PENDING");
+            thridObj.setId(3);
+            thridObj.setTitle("Cuci Celana");
+            thridObj.setItemCount(5);
+            thridObj.setDateCreated("6 Feb 2018");
+            thridObj.setStatus("PENDING");
 
             List<VisualObjects> visualArray = new ArrayList<>();
             visualArray.add(firstObj);
