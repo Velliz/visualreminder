@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -20,23 +19,60 @@ import java.util.Map;
  * Usage it on doInBackground if you using AsyncTask to perform multipartRequest method
  *
  * Usage Sample:
- * Map<String, String> params = new HashMap<String, String>(2);
+ * MultipartUpload x = new MultipartUpload();
+ * MultipartUpload.FileObject p = x.new FileObject();
+ * p.setFilepath(pathToVideoFile);
+ * p.getFilefield("video");
+ * p.getFileMimeType("video/mp4");
+ * Map<String, MultipartUpload.FileObject> test = new HashMap<String, MultipartUpload.FileObject>();
+ * test.put("file_key", p);
+ *
+ * Map<String, String> params = new HashMap<String, String>();
  * params.put("foo", hash);
  * params.put("bar", caption);
- * String result = multipartRequest(URL_UPLOAD_VIDEO, params, pathToVideoFile, "video", "video/mp4");
+ * String result = x.multipartRequest(URL_UPLOAD_VIDEO, params, test);
  */
 public class MultipartUpload {
 
+    public class FileObject {
+
+        String filepath;
+        String filefield;
+        String fileMimeType;
+
+        public String getFilepath() {
+            return filepath;
+        }
+
+        public void setFilepath(String filepath) {
+            this.filepath = filepath;
+        }
+
+        public String getFilefield() {
+            return filefield;
+        }
+
+        public void setFilefield(String filefield) {
+            this.filefield = filefield;
+        }
+
+        public String getFileMimeType() {
+            return fileMimeType;
+        }
+
+        public void setFileMimeType(String fileMimeType) {
+            this.fileMimeType = fileMimeType;
+        }
+    }
+
     /**
      *
-     * @param urlTo API Endpoint URL
-     * @param parmas Parameter to send
-     * @param filepath File directory path
-     * @param filefield File post name ex. images
-     * @param fileMimeType File mime type ex. image/jpeg
-     * @return bool
+     * @param urlTo url destination
+     * @param parmas post parameter
+     * @param uploads array of file
+     * @return String
      */
-    public String multipartRequest(String urlTo, Map<String, String> parmas, String filepath, String filefield, String fileMimeType) throws Exception {
+    public String multipartRequest(String urlTo, Map<String, String> parmas, Map<String, FileObject> uploads) throws Exception {
         HttpURLConnection connection;
         DataOutputStream outputStream;
         InputStream inputStream;
@@ -45,19 +81,13 @@ public class MultipartUpload {
         String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
         String lineEnd = "\r\n";
 
-        String result = "";
+        String result;
 
         int bytesRead, bytesAvailable, bufferSize;
         byte[] buffer;
         int maxBufferSize = 1024 * 1024;
 
-        String[] q = filepath.split("/");
-        int idx = q.length - 1;
-
         try {
-            File file = new File(filepath);
-            FileInputStream fileInputStream = new FileInputStream(file);
-
             URL url = new URL(urlTo);
             connection = (HttpURLConnection) url.openConnection();
 
@@ -71,31 +101,41 @@ public class MultipartUpload {
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
             outputStream = new DataOutputStream(connection.getOutputStream());
-            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-            outputStream.writeBytes("Content-Disposition: form-data; name=\"" + filefield + "\"; filename=\"" + q[idx] + "\"" + lineEnd);
-            outputStream.writeBytes("Content-Type: " + fileMimeType + lineEnd);
-            outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
+            for (String key : uploads.keySet()) {
+                FileObject fileObjects = uploads.get(key);
 
-            outputStream.writeBytes(lineEnd);
+                File file = new File(fileObjects.filepath);
+                FileInputStream fileInputStream = new FileInputStream(file);
 
-            bytesAvailable = fileInputStream.available();
-            bufferSize = Math.min(bytesAvailable, maxBufferSize);
-            buffer = new byte[bufferSize];
+                String[] q = fileObjects.filepath.split("/");
+                int idx = q.length - 1;
 
-            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-            while (bytesRead > 0) {
-                outputStream.write(buffer, 0, bufferSize);
+                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + fileObjects.filefield + "\"; filename=\"" + q[idx] + "\"" + lineEnd);
+                outputStream.writeBytes("Content-Type: " + fileObjects.fileMimeType + lineEnd);
+                outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
+
+                outputStream.writeBytes(lineEnd);
+
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                while (bytesRead > 0) {
+                    outputStream.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                }
+
+                fileInputStream.close();
             }
 
             outputStream.writeBytes(lineEnd);
 
             // Upload POST Data
-            Iterator<String> keys = parmas.keySet().iterator();
-            while (keys.hasNext()) {
-                String key = keys.next();
+            for (String key : parmas.keySet()) {
                 String value = parmas.get(key);
 
                 outputStream.writeBytes(twoHyphens + boundary + lineEnd);
@@ -108,7 +148,6 @@ public class MultipartUpload {
 
             outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
-
             if (200 != connection.getResponseCode()) {
                 throw new Exception("Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
             }
@@ -117,7 +156,6 @@ public class MultipartUpload {
 
             result = this.convertStreamToString(inputStream);
 
-            fileInputStream.close();
             inputStream.close();
             outputStream.flush();
             outputStream.close();
