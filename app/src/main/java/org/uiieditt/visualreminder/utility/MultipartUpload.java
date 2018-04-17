@@ -115,7 +115,7 @@ public class MultipartUpload {
                 outputStream.writeBytes("Content-Type: " + fileObjects.fileMimeType + lineEnd);
                 outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
 
-                outputStream.writeBytes(lineEnd);
+                //outputStream.writeBytes(lineEnd);
 
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
@@ -129,10 +129,9 @@ public class MultipartUpload {
                     bytesRead = fileInputStream.read(buffer, 0, bufferSize);
                 }
 
+                outputStream.writeBytes(lineEnd);
                 fileInputStream.close();
             }
-
-            outputStream.writeBytes(lineEnd);
 
             // Upload POST Data
             for (String key : parmas.keySet()) {
